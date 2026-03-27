@@ -2,9 +2,11 @@ package sqlite
 
 import (
 	"database/sql"
-	"github.com/Lakshay309/student-api-go/internal/config"
-	_ "modernc.org/sqlite"
+	"fmt"
 
+	"github.com/Lakshay309/student-api-go/internal/config"
+	myTypes "github.com/Lakshay309/student-api-go/internal/types"
+	_ "modernc.org/sqlite"
 )
 
 type Sqlite struct {
@@ -46,4 +48,22 @@ func (s *Sqlite) CreateStudent(name string,email string,age int) (int64,error){
 		return 0,err;
 	}
 	return lastId,nil;
+}
+
+func (s Sqlite) GetStudentById(id int64)( myTypes.Student,error){
+	stmt,err:=s.Db.Prepare("SELECT * FROM students where id=? LIMIT 1")
+	if err!=nil{
+		return myTypes.Student{},err;
+	}
+	defer stmt.Close()
+
+	var student myTypes.Student
+	err=stmt.QueryRow(id).Scan(&student.Id,&student.Name,&student.Email,&student.Age)
+	if err!=nil{
+		if err== sql.ErrNoRows{
+			return myTypes.Student{},fmt.Errorf("No sudent with that id: %s",fmt.Sprint(id))
+		}
+		return myTypes.Student{},fmt.Errorf("query Error: %w",err)
+	}
+	return student,nil;
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/Lakshay309/student-api-go/internal/storage"
 	myTypes "github.com/Lakshay309/student-api-go/internal/types"
@@ -41,8 +42,25 @@ func New(storage storage.Storage) http.HandlerFunc{
 			response.WriteJson(w,http.StatusInternalServerError,response.GeneralError(err))
 		}
 		slog.Info("user created successfully",slog.String("userId",fmt.Sprint(lastId)))
-		
+
 		response.WriteJson(w,http.StatusCreated,map[string]int64{"id":lastId})
 	}
 }
 
+func GetById(storage storage.Storage)http.HandlerFunc{
+	return func(w http.ResponseWriter, r *http.Request) {
+		id:=r.PathValue("id")
+		slog.Info("getting a student",slog.String("id",id))
+		intId,err:=strconv.ParseInt(id,10,64);
+		if err!=nil{
+			response.WriteJson(w,http.StatusBadRequest,response.GeneralError(err))
+			return
+		}
+		student,err:=storage.GetStudentById(intId)
+		if err!=nil{
+			response.WriteJson(w,http.StatusInternalServerError,response.GeneralError(err))
+			return
+		}
+		response.WriteJson(w,http.StatusFound,student)
+	}
+}
