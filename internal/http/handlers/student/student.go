@@ -64,3 +64,18 @@ func GetById(storage storage.Storage)http.HandlerFunc{
 		response.WriteJson(w,http.StatusFound,student)
 	}
 }
+
+func GetList(storage storage.Storage) http.HandlerFunc{
+	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("getting all student")
+		// var students []myTypes.Student
+		students,err:=storage.GetStudentList();
+		if err!=nil{
+			response.WriteJson(w,http.StatusBadRequest,response.GeneralError(err))
+			return;
+		}
+		response.WriteJson(w,http.StatusBadRequest,students)
+	}
+}
+
+// go run cmd/student-api/main.go -config config/local.yaml                                        

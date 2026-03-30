@@ -30,6 +30,7 @@ func main() {
 
 	router.HandleFunc("POST /api/student", student.New(storage))
 	router.HandleFunc("GET /api/student/{id}", student.GetById(storage))
+	router.HandleFunc("GET /api/student", student.GetList(storage))
 
 	// setup server
 	server := http.Server{
